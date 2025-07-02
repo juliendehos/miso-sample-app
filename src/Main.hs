@@ -1,5 +1,5 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE CPP               #-}
 
@@ -26,9 +26,14 @@ data Action
 
 -- | Entry point for a miso application
 main :: IO ()
-main = run (startComponent Main.component)
--- main = JSaddle.Wasm.run app
+main = run $ do
 
+  let model = Model 0
+
+      app :: Component "app" Model Action
+      app = defaultComponent model updateModel viewModel
+
+  startComponent app
 
 -- | WASM export, required when compiling w/ the WASM backend.
 #ifdef WASM
