@@ -11,6 +11,6 @@ newtype Model = Model
 
 makeLenses ''Model
 
-emptyModel :: Model
-emptyModel = Model 0
+mkModel :: Model
+mkModel = Model 0
 

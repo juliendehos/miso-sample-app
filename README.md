@@ -25,6 +25,13 @@ cachix use haskell-miso-cachix
 nix develop .#wasm --command bash -c "make && make serve"
 ```
 
+or (dev):
+
+```
+nix develop .#wasm
+make build && make serve
+```
+
 
 ## build and run (docker)
 
