@@ -3,18 +3,32 @@ name:             miso-sample-app
 version:          0.1
 
 common options
-  default-language:   GHC2021
-  default-extensions: CPP TemplateHaskell 
+  default-language:
+    GHC2021
+  default-extensions:
+    CPP
+    TemplateHaskell 
 
   if arch(wasm32)
-    ghc-options: -Wall -O2 -no-hs-main -optl-mexec-model=reactor "-optl-Wl,--export=hs_start" -ddump-splices
-    cpp-options: -DWASM
+    ghc-options:
+      -Wall -O2 -no-hs-main -optl-mexec-model=reactor "-optl-Wl,--export=hs_start" -ddump-splices
+    cpp-options:
+      -DWASM
   else
-    ghc-options: -Wall -O2 -ddump-splices
+    ghc-options:
+      -Wall -O2 -ddump-splices
 
 executable app
-  import:         options
-  hs-source-dirs: src
-  main-is:        Main.hs
-  build-depends:  base, miso
+  import:
+    options
+  hs-source-dirs:
+    src
+  main-is:
+    Main.hs
+  other-modules:
+    Component
+    Model
+  build-depends:
+    base,
+    miso
 
