@@ -1,19 +1,45 @@
-# Miso sample app
+# miso-sample-app
+
+Sample client-side app using Miso, with wasm backend + vscode config +
+github CI + docker deployment.
 
 [try online](https://juliendehos.github.io/miso-sample-app)
 
-## How to build/run
+
+## setup
+
+- install Nix Flakes
+
+- install Cachix
+
+- use miso's cachix:
+
+```sh
+cachix use haskell-miso-cachix
+```
+
+
+## build and run (wasm)
 
 ```
-nix develop
-
-./build.sh
-
-http-server public
+nix develop .#wasm --command bash -c "make && make serve"
 ```
 
-## Resources
 
-- https://github.com/dmjio/miso
-- https://github.com/tweag/ghc-wasm-miso-examples
+## build and run (docker)
+
+```
+nix develop .#wasm --command bash -c "make"
+nix-build docker.nix
+docker load < result
+docker run --rm -it -p 3000:3000 miso-sample-app:latest
+```
+
+
+## edit with vscode
+
+```
+nix-shell
+code .
+```
 

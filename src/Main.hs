@@ -1,68 +1,67 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase        #-}
-{-# LANGUAGE CPP               #-}
-
-module Main where
 
 import Miso
-import Miso.String
 import Miso.Lens
+import Miso.Lens.TH
+import Miso.Html.Element as H
+import Miso.Html.Event as E
 
--- | Component model state
+-------------------------------------------------------------------------------
+-- model
+-------------------------------------------------------------------------------
+
 newtype Model = Model
-  { _counter :: Int
+  { _modelCounter :: Int
   } deriving (Show, Eq)
 
-counter :: Lens Model Int
-counter = lens _counter $ \record field -> record { _counter = field }
+makeLenses ''Model
 
--- | Sum type for Component events
+emptyModel :: Model
+emptyModel = Model 0
+
+-------------------------------------------------------------------------------
+-- actions
+-------------------------------------------------------------------------------
+
 data Action
   = AddOne
   | SubtractOne
   | SayHelloWorld
   deriving (Show, Eq)
 
--- | Entry point for a miso application
+-------------------------------------------------------------------------------
+-- update
+-------------------------------------------------------------------------------
+
+updateModel :: Action -> Transition Model Action
+updateModel action = 
+  case action of
+    AddOne        -> modelCounter += 1
+    SubtractOne   -> modelCounter -= 1
+    SayHelloWorld -> io_ $ do
+      consoleLog "Hello World"
+      alert "Hello World"
+
+-------------------------------------------------------------------------------
+-- view
+-------------------------------------------------------------------------------
+
+viewModel :: Model -> View Model Action
+viewModel m = div_ []
+  [ button_ [ onClick AddOne ] [ "+" ]
+  , text $ ms (m ^. modelCounter)
+  , button_ [ onClick SubtractOne ] [ "-" ]
+  , button_ [ onClick SayHelloWorld ] [ "Alert Hello World!" ]
+  ]
+
+-------------------------------------------------------------------------------
+-- main
+-------------------------------------------------------------------------------
+
 main :: IO ()
-main = run $ do
+main = run $ startComponent $ component emptyModel updateModel viewModel
 
-  let model = Model 0
-
-      app :: Component "app" Model Action
-      app = defaultComponent model updateModel viewModel
-
-  startComponent app
-
--- | WASM export, required when compiling w/ the WASM backend.
 #ifdef WASM
 foreign export javascript "hs_start" main :: IO ()
 #endif
-
--- | `defaultComponent` takes as arguments the initial model, update function, view function
-component :: Component name Model Action
-component = defaultComponent emptyModel updateModel viewModel
-
--- | Empty application state
-emptyModel :: Model
-emptyModel = Model 0
-
--- | Updates model, optionally introduces side effects
-updateModel :: Action -> Effect Model Action
-updateModel = \case
-  AddOne        -> counter += 1
-  SubtractOne   -> counter -= 1
-  SayHelloWorld -> io_ $ do
-    consoleLog "Hello World"
-    alert "Hello World"
-
--- | Constructs a virtual DOM from a model
-viewModel :: Model -> View Action
-viewModel x = div_ []
-  [ button_ [ onClick AddOne ] [ text "+" ]
-  , text $ ms (x ^. counter)
-  , button_ [ onClick SubtractOne ] [ text "-" ]
-  , button_ [ onClick SayHelloWorld ] [ text "Alert Hello World!" ]
-  ]
 
